@@ -1,0 +1,7 @@
+# Full GRC continuation configuration.
+_base_: cmu_grc_base.yaml
+experiment:
+  method_version: cmu_pal_grc
+  objective: PAL plus full GRC regularization
+loss:
+  group_psd_objective_mode: full

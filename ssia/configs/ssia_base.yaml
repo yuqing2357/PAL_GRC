@@ -1,0 +1,91 @@
+# D34 main route on the immutable PathMAE-filtered 10k/500/500 dataset.
+seed: 20260916
+experiment:
+  method_version: ssia_pal
+  model_scale: large
+  objective: CRF-only, slot-free direct cosine, exact r=0, always-overlap partial paths
+paths:
+  out_dir: runs/ssia_pal
+data:
+  root: __set_by_launch_script__
+  format: prepared_imp_rgt_v1
+  expected_train_groups: 10000
+  min_overlap_fraction: 0.05
+  coordinate_tolerance: 0.5
+  use_bridge_gap_mask: false
+  warm_page_cache: true
+model:
+  name: interaction_direct_cosine_two_gsi_large_always_overlap_crf_r0
+  K: 8
+  groupwise_mode: interaction_direct_cosine
+  group_interaction_blocks: 2
+  input_channels: 1
+  blocks_per_stage: [1, 1, 2, 2, 2]
+  channels: [64, 128, 192, 256, 320]
+  decoder_blocks_per_stage: 1
+  groupnorm_groups: 8
+  dropout: 0.0
+  group_interaction_dropout: 0.1
+  group_set_heads: 8
+  assume_full_length: true
+  proj_dim: 192
+  direct_matching:
+    similarity: cosine_of_l2_normalized_two_gsi_group_conditioned_embeddings
+    crf_emission: alpha_times_cosine_plus_beta
+    crf_scale_init: 1.0
+    crf_bias_init: 6.238324625039508
+    crf_target_length: 512
+alignment:
+  crf_reference_length: 512
+  crf_emission_mode: legacy
+loss:
+  lambda_crf: 1.0
+  lambda_projector: 0.0
+  lambda_similarity: 0.0
+  lambda_group_score: 0.0
+  allow_no_overlap_output: false
+  align_corridor_radius: 0.0
+  zero_radius_continuous_target_policy: nearest_integer
+  segment_existence_bias: false
+  target_length_calibration: direct_cosine_alpha_times_cosine_plus_beta
+  group_psd_enabled: false
+  group_psd_weight: 0.0
+train:
+  expected_world_size: 4
+  batch_size_per_gpu: 72
+  epochs: 100
+  num_workers_per_rank: 8
+  worker_threads: 1
+  prefetch_factor: 4
+  main_threads: 2
+  grad_accum_steps: 1
+  # Preserve the CRF-only loss exactly; make only its early optimization
+  # conservative: half the prior peak LR and an eight-epoch warmup.
+  lr: 2.0e-4
+  betas: [0.9, 0.999]
+  weight_decay: 0.0
+  warmup_steps: 280
+  min_lr_ratio: 0.1
+  grad_clip: 1.0
+  amp: bf16
+  tf32: true
+  cudnn_benchmark: true
+  fused_optimizer: true
+  static_graph: true
+  performance_optimization: {enabled: true}
+  ema: true
+  ema_decay: 0.9995
+  log_every: 20
+  timing_log_every: 20
+  early_stop_patience: 10
+  early_stop_min_delta: 1.0e-4
+  resume: null
+validation:
+  expected_groups: 500
+  cadence: every_epoch
+  report_f1_tolerance_index: 2
+  metric_decode_batch_size_per_gpu: 12
+  batch_size_per_gpu: 24
+  num_workers_per_rank: 4
+  worker_threads: 1
+  prefetch_factor: 2

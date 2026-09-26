@@ -1,0 +1,1 @@
+"""Minimal frozen loss dependencies."""

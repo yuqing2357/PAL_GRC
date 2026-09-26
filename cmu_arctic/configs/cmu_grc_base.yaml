@@ -1,0 +1,54 @@
+# E3 branch: same group-conditioned Two-GSI continuation as E1 Full GRC;
+# only the Group-PSD objective component is changed to Direction-only.  This
+# file is deliberately standalone so the calibration CLI and trainer consume
+# the same complete schema even when called independently.
+alignment:
+  crf_reference_length: 291
+  crf_reference_length_source: unique_train_utterance_native_lengths
+  crf_emission_mode: legacy
+model:
+  name: interaction_direct_cosine_two_gsi_large_always_overlap_crf_r0
+  groupwise_mode: interaction_direct_cosine
+  group_interaction_blocks: 2
+  cross_sequence_communication: true
+  K: 4
+  input_channels: 39
+  variable_length: true
+  channels: [64, 128, 192, 256, 320]
+  blocks_per_stage: [1, 1, 2, 2, 2]
+  groupnorm_groups: 8
+  dropout: 0.0
+  group_set_heads: 8
+  group_interaction_dropout: 0.1
+  proj_dim: 192
+  direct_matching:
+    similarity: cosine_of_l2_normalized_two_gsi_group_conditioned_embeddings
+    crf_emission: alpha_times_cosine_plus_beta
+    crf_scale_init: 1.0
+    crf_bias_init: 5.673323267171493
+loss:
+  lambda_projector: 0.0
+  align_corridor_radius: 0
+  projector: structurally_unavailable_without_memberships
+  projector_stride: 2
+  projector_batch_groups: 8
+  projector_warmup_steps: 0
+  projector_ramp_steps: 0
+  allow_no_overlap_output: false
+  membership_null_slot: false
+  variable_pair_shape: true
+  target_length_calibration: direct_cosine_alpha_times_cosine_plus_beta
+  segment_existence_bias: false
+  zero_radius_continuous_target_policy: nearest_integer
+  lambda_similarity: 0.0
+  lambda_group_score: 0.0
+  group_psd_enabled: true
+  group_psd_weight: 1.0  # replaced by train-only, seed-specific calibration
+  group_psd_start_epoch: 61
+  group_psd_position_fraction: 1.0
+  group_psd_num_positions: 125  # unused when the fraction is set
+  group_psd_batch_groups: 2
+  group_psd_objective_mode: direction
+experiment:
+  method_version: cmu_e3_controlled_pal_direction_r60_p100_start61_v1
+  objective: E3 controlled continuation, PAL plus Direction-only component of formal GRC

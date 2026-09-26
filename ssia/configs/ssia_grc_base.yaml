@@ -1,0 +1,27 @@
+# Generic configuration for the fixed-protocol Group PSD ratio ablation.
+# The launcher supplies only the seed, source epoch-10 checkpoint, calibrated
+# Group PSD weight, and ratio-tagged output identity.
+_base_: ssia_continuation_base.yaml
+
+experiment:
+  method_version: ssia_pal_grc
+  model_scale: large
+  objective: exact continuation from CRF-only epoch 10; CRF plus prediction-only directed-relation Group PSD over 128 sampled original positions; ratio supplied by launcher
+
+paths:
+  out_dir: runs/ssia_pal_grc
+
+loss:
+  group_psd_enabled: true
+  # Replaced by raw epoch-10 gradient calibration in the launcher.
+  group_psd_weight: 0.0
+  # A continuation begins at global epoch 11, so this activates immediately.
+  group_psd_start_epoch: 1
+  group_psd_num_positions: 128
+  group_psd_batch_groups: 2
+
+train:
+  resume_mode: group_psd_continuation
+  resume: null
+  early_stop_patience: 4
+  early_stop_min_delta: 1.0e-4

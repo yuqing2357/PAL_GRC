@@ -1,0 +1,18 @@
+# PAL continuation configuration.  It forks after the completed PAL source
+# checkpoint and uses the normal validation/early-stopping policy.
+_base_: ssia_continuation_base.yaml
+
+experiment:
+  method_version: ssia_pal
+  controlled_experiment: main
+  controlled_condition: pal_continuation
+  objective: PAL continuation from the supplied source checkpoint
+
+loss:
+  group_psd_enabled: false
+  group_psd_weight: 0.0
+
+train:
+  resume_mode: staged_continuation
+  early_stop_patience: 4
+  early_stop_min_delta: 1.0e-4

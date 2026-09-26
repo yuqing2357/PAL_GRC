@@ -1,0 +1,47 @@
+experiment:
+  method_version: cmu_pal
+  objective: PAL continuation with the partial-path alignment objective
+
+# The CMU YAML is intentionally standalone so the reviewer can inspect the
+# complete method configuration in one place.
+alignment:
+  crf_reference_length: 291
+  crf_reference_length_source: unique_train_utterance_native_lengths
+  crf_emission_mode: legacy
+model:
+  name: interaction_direct_cosine_two_gsi_large_always_overlap_crf_r0
+  groupwise_mode: interaction_direct_cosine
+  group_interaction_blocks: 2
+  K: 4
+  input_channels: 39
+  variable_length: true
+  channels: [64, 128, 192, 256, 320]
+  blocks_per_stage: [1, 1, 2, 2, 2]
+  groupnorm_groups: 8
+  dropout: 0.0
+  group_set_heads: 8
+  group_interaction_dropout: 0.1
+  proj_dim: 192
+  direct_matching:
+    similarity: cosine_of_l2_normalized_two_gsi_group_conditioned_embeddings
+    crf_emission: alpha_times_cosine_plus_beta
+    crf_scale_init: 1.0
+    crf_bias_init: 5.673323267171493
+loss:
+  lambda_projector: 0.0
+  align_corridor_radius: 0
+  projector: structurally_unavailable_without_memberships
+  projector_stride: 2
+  projector_batch_groups: 8
+  projector_warmup_steps: 0
+  projector_ramp_steps: 0
+  allow_no_overlap_output: false
+  membership_null_slot: false
+  variable_pair_shape: true
+  target_length_calibration: direct_cosine_alpha_times_cosine_plus_beta
+  segment_existence_bias: false
+  zero_radius_continuous_target_policy: nearest_integer
+  lambda_similarity: 0.0
+  lambda_group_score: 0.0
+  group_psd_enabled: false
+  group_psd_weight: 0.0

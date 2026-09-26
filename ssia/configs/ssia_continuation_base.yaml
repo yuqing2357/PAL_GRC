@@ -1,0 +1,13 @@
+# CRF-only rerun on the immutable volume-balanced held-out remix.
+_base_: ssia_base.yaml
+
+experiment:
+  method_version: ssia_pal
+  model_scale: large
+  objective: CRF-only, slot-free direct cosine, exact r=0, always-overlap partial paths; held-out split balanced 1:1 within every source volume
+
+paths:
+  out_dir: runs/ssia_pal
+
+train:
+  train_log_cadence: every_epoch
